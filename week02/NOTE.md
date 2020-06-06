@@ -32,6 +32,7 @@
   - MultiplicativeExpression
   - AddtiveExpression
 
+```
 "a"
 "b"
 <Program>:= "a"+ | "b"+
@@ -56,6 +57,7 @@ abababbbabab
 <LogicalExpression> "&&" <AdditiveExpression>
 
 <PrimaryExpression> = <DecimalNumber> | "(" <LogicExpression> ")"
+```
 
 ## 通过产生式理解文法
 
@@ -65,11 +67,13 @@ abababbbabab
 - 1型 上下文相关文法
   - ?<A>?::=?<B>?
 
+```
 eg: 
 {
   get a { return 1 },
   get : 1
 }
+```
 
 - 2型 上下文无关文法
   - <A>::=?
@@ -77,8 +81,11 @@ eg:
 - 3型 正则文法
   - <A>::=<A>?
   - <A>::=?<A> x
+  
+```
 eg: 
 <DecimalNumber> = /0|[1-9][0-9]*/
+```
 
 ## 其他产生式
 
@@ -135,6 +142,7 @@ AdditiveExpression:
 - 子系统
   - 逆变 / 协变
 
+```
 eg:
 {
   a: T1
@@ -143,6 +151,7 @@ eg:
 (T1, T2) => T3
 凡是能用 Array<Parent>的地方，都能用Array<Child>
 凡是能用Function<Child>的地方，都能用Function<Parent>
+```
 
 
 ## 一般命令式编程语言
