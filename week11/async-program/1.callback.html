@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Async-Callback</title>
+  <style>
+    .round {
+      display: inline-block;
+      background-color: gray;
+      margin: 24px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+    }
+    .light.green {
+      background-color: green;
+    }
+    .light.yellow {
+      background-color: yellow;
+    }
+    .light.red {
+      background-color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="round green"></div>
+  <div class="round yellow"></div>
+  <div class="round red"></div>
+</body>
+</html>
+
+<script>
+/**
+* 红绿灯问题
+* 一个路口的红绿灯，会按照绿灯亮10秒，黄灯亮2秒，红灯亮5秒的顺序
+* 无限循环，请编写JS代码来控制这个红绿灯
+*/
+
+// tip: 业务逻辑和时序逻辑分开
+// const lights = document.querySelectorAll('.round')
+// const greenLight = document.querySelector('.green')
+// const redLight = document.querySelector('.red')
+// const yellowLight = document.querySelector('.yellow')
+
+// function removeLightAll() {
+//   for (let i = 0; i < lights.length; i++) {
+//     const light = lights[i]
+//     light.classList.remove('light')
+//   }
+// }
+
+// function green() {
+//   removeLightAll()
+//   greenLight.classList.add('light')
+// }
+
+// function red() {
+//   removeLightAll()
+//   redLight.classList.add('light')
+// }
+
+// function yellow() {
+//   removeLightAll()
+//   yellowLight.classList.add('light')
+// }
+
+// function startLightLoop() {
+//   green()
+//   setTimeout(() => {
+//     yellow()
+//     setTimeout(() => {
+//       red()
+//       setTimeout(() => {
+//         startLightLoop()
+//       }, 1000 * 5)
+//     }, 1000 * 2)
+//   }, 1000 * 10)
+// }
+
+// startLightLoop()
+
+const lights = document.querySelectorAll('.round')
+const greenLight = document.querySelector('.green')
+const redLight = document.querySelector('.red')
+const yellowLight = document.querySelector('.yellow')
+
+function removeLightAll() {
+  for (let i = 0; i < lights.length; i++) {
+    const light = lights[i]
+    light.classList.remove('light')
+  }
+}
+
+function lighten(lightElem) {
+  removeLightAll()
+  lightElem.classList.add('light')
+}
+
+function startLightLoop() {
+  lighten(greenLight)
+  setTimeout(() => {
+    lighten(yellowLight)
+    setTimeout(() => {
+      lighten(redLight)
+      setTimeout(() => {
+        startLightLoop()
+      }, 1000 * 5)
+    }, 1000 * 2)
+  }, 1000 * 10)
+}
+
+startLightLoop()
+</script>
