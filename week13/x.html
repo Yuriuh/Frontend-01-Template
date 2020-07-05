@@ -1,0 +1,26 @@
+<div id="dragable" style="width: 100px; height: 100px; background-color: pink;">
+
+</div>
+
+<script>
+  const dragable = document.querySelector('#dragable')
+
+  let baseX = 0
+  let baseY = 0
+
+  dragable.addEventListener('mousedown', (e) => {
+    let startX = e.clientX
+    let startY = e.clientY
+    let move = e => {
+      let x = e.clientX
+      let y = e.clientY
+      dragable.style.transform = `translate(${x}px, ${y})px`
+    }
+    let up = e => {
+      document.removeEventListener('mousemove', move)
+      document.removeEventListener('mouseup', up)
+    }
+    document.addEventListener('mousemove', move)
+    document.addEventListener('mouseup', up)
+  })
+</script>

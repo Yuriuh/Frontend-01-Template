@@ -1,0 +1,94 @@
+<div>
+  <input id="red" type="range" min="0" max="255">
+  <input id="green" type="range" min="0" max="255">
+  <input id="black" type="range" min="0" max="255">
+  <div id="rect" style="width: 100px; height: 100px;"></div>
+</div>
+
+<script>
+  const handlerMap = new Map()
+  const reactivities = new Map()
+
+  let usedReactivities = []
+
+  function reactive(obj) {
+    if (reactivities.has(obj)) {
+      return reactivities.get(obj)
+    }
+
+    let proxy =  new Proxy(obj, {
+      get(obj, prop) {
+        usedReactivities.push([obj, prop])
+        if (typeof obj[prop] === 'object') {
+          return reactive(obj[prop])
+        }
+        return obj[prop]
+      },
+      set(obj, prop, val) {
+        obj[prop] = val
+        if (handlerMap.get(obj)) {
+          const handlers = handlerMap.get(obj).get(prop)
+          if (handlers) {
+            for (let handler of handlerMap.get(obj).get(prop)) {
+              handler()
+            }
+          }
+        }
+        return obj[prop]
+      }
+    })
+
+    reactivities.set(obj, proxy)
+    reactivities.set(proxy, proxy)
+    return proxy
+  }
+
+  function effect(handler) {
+    usedReactivities = []
+    handler()
+    for (let usedReactivity of usedReactivities) {
+      let [obj, prop] = usedReactivity
+      if (!handlerMap.has(obj)) {
+        handlerMap.set(obj, new Map())
+      }
+      if (!handlerMap.get(obj).has(prop)) {
+        handlerMap.get(obj).set(prop, [])
+      }
+      handlerMap.get(obj).get(prop).push(handler)
+    }
+  }
+
+  const $ = s => document.querySelector(s)
+  const red = $('#red')
+  const green = $('#green')
+  const black = $('#black')
+  const rect = $('#rect')
+  const proxy = reactive({ red: 100, green: 100, black: 100 })
+
+  effect(() => {
+    red.value = proxy.red
+  })
+
+  effect(() => {
+    green.value = proxy.green
+  })
+
+  effect(() => {
+    black.value = proxy.black
+  })
+
+  effect(() => {
+    rect.style.backgroundColor = `rgb(${proxy.red}, ${proxy.green}, ${proxy.black})`
+  })
+
+  red.addEventListener('input', event => {
+    proxy.red = event.target.value
+    console.log('red', proxy.red)
+  })
+  green.addEventListener('input', event => {
+    proxy.green = event.target.value
+  })
+  black.addEventListener('input', event => {
+    proxy.black = event.target.value
+  })
+</script>
