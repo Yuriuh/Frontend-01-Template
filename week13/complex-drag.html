@@ -1,0 +1,69 @@
+<style>
+  #dragable {
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    background: pink;
+  }
+</style>
+
+<div id="container">
+  Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores sed minus consequatur quasi officia molestiae placeat fuga tenetur, corporis quidem eligendi, quis voluptates fugit, commodi cupiditate ipsum voluptatem rem est!
+  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dicta praesentium deserunt possimus perferendis excepturi similique expedita distinctio cum, natus tenetur eos maiores vitae deleniti inventore cumque qui culpa corrupti accusantium.
+  Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero iusto tenetur rerum natus pariatur, et hic dolorum itaque, aliquid numquam consequuntur dolore iste nemo neque veniam facere quia nisi. Eveniet?
+</div>
+<div id="dragable"></div>
+
+<script>
+let dragable = document.querySelector('#dragable')
+
+function drag(elem) {
+  // 闭包
+  let baseX = 0
+  let baseY = 0
+
+  elem.addEventListener('mousedown', () => {
+    let startX = event.clientX
+    let startY = event.clientY
+    let move = event => {
+      let range = nearest(event.clientX, event.clientY)
+      range.insertNode(elem)
+    }
+    let up = event => {
+      baseX = baseX + event.clientX - startX
+      baseY = baseY + event.clientY - startY
+      document.removeEventListener('mousemove', move)
+      document.removeEventListener('mouseup', up)
+    }
+    document.addEventListener('mousemove', move)
+    document.addEventListener('mouseup', up)
+  })
+}
+
+drag(dragable)
+
+let ranges = []
+
+let container = document.querySelector('#container')
+for (let i = 0; i < container.childNodes[0].textContent.length; i++) {
+  let range = document.createRange()
+  range.setStart(container.childNodes[0], i)
+  range.setEnd(container.childNodes[0], i)
+  ranges.push(range)
+}
+
+function nearest(x0, y0) {
+  let nearestRange = null
+  let distance = Infinity
+  for (let range of ranges) {
+    let { x, y } = range.getBoundingClientRect()
+    let d = (x0 - x) ** 2 + (y0 - y) ** 2
+    if (d < distance) {
+      nearestRange = range
+      distance = d
+    }
+  }
+  return nearestRange
+}
+document.addEventListener('selectstart', event => event.preventDefault())
+</script>
