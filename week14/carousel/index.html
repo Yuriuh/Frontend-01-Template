@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carousel</title>
+  <style>
+    .carousel {
+      width: 500px;
+      height: 300px;
+      white-space: nowrap;
+      outline: 1px solid pink;
+      padding: 2px;
+      /* zoom: 0.25; */
+      zoom: 1;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+    .carousel > img {
+      width: 500px;
+      height: 300px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    const log = console.log.bind(this)
+
+    class Carousel {
+      constructor() {
+        this.root = null
+        this.data = null
+      }
+      render() {
+        this.root = document.createElement('div')
+        this.root.classList.add('carousel')
+        for (const d of this.data) {
+          const img = document.createElement('img')
+          img.src = d
+          img.addEventListener('dragstart', e => e.preventDefault())
+          this.root.appendChild(img)
+        }
+
+        let position = 0
+
+        let nextPic = () => {
+          let nextPosition = (position + 1) % this.data.length
+
+          let current = this.root.childNodes[position]
+          let next = this.root.childNodes[nextPosition]
+
+          current.style.transition = 'ease 0s'
+          next.style.transition = 'ease 0s'
+          current.style.transform = `translateX(${-(100 * position)}%)`
+          next.style.transform = `translateX(${100 - (100 * nextPosition)}%)`
+
+          setTimeout(() => {
+            current.style.transition = 'ease 0.5s'
+            next.style.transition = 'ease 0.5s'
+            current.style.transform = `translateX(${-100 - (100 * position)}%)`
+            next.style.transform = `translateX(${-100 * nextPosition}%)`
+            position = nextPosition
+          }, 16)
+
+          setTimeout(nextPic, 1500)
+        }
+        setTimeout(nextPic, 1500)
+
+        this.root.addEventListener('mousedown', () => {
+          let startX = event.clientX
+          let startY = event.clientY
+
+          let lastPosition = (position - 1 + this.data.length) % this.data.length
+          let nextPosition = (position + 1) % this.data.length
+
+          let current = this.root.childNodes[position]
+          let last = this.root.childNodes[lastPosition]
+          let next = this.root.childNodes[nextPosition]
+
+          current.style.transition = 'ease 0s'
+          last.style.transition = 'ease 0s'
+          next.style.transition = 'ease 0s'
+
+          current.style.transform = `translateX(${- 500 * position}px)`
+          last.style.transform = `translateX(${- 500 - 500 * lastPosition}px)`
+          next.style.transform = `translateX(${500 - 500 * nextPosition}px)`
+
+          let move = event => {
+            let x = event.clientX - startX
+            current.style.transform = `translateX(${x - 500 * position}px)`
+            last.style.transform = `translateX(${x - 500 - 500 * lastPosition}px)`
+            next.style.transform = `translateX(${x + 500 - 500 * nextPosition}px)`
+          }
+          let up = event => {
+            let x = event.clientX - startX
+            let offset = 0
+            if (x > 250) {
+              offset = 1
+            } else if (x < -250) {
+              offset = -1
+            }
+
+            current.style.transition = 'ease 0.5s'
+            last.style.transition = 'ease 0.5s'
+            next.style.transition = 'ease 0.5s'
+
+            current.style.transform = `translateX(${offset * 500 - 500 * position}px)`
+            last.style.transform = `translateX(${offset * 500 - 500 - 500 * lastPosition}px)`
+            next.style.transform = `translateX(${offset * 500 + 500 - 500 * nextPosition}px)`
+
+            position = (position - offset + this.data.length) % this.data.length
+
+            document.removeEventListener('mousemove', move)
+            document.removeEventListener('mouseup', up)
+          }
+          document.addEventListener('mousemove', move)
+          document.addEventListener('mouseup', up)
+        })
+      }
+    }
+
+    // create
+    const carousel = new Carousel()
+
+    // update
+    carousel.data = [
+      'https://static001.geekbang.org/resource/image/bb/21/bb38fb7c1073eaee1755f81131f11d21.jpg',
+      'https://static001.geekbang.org/resource/image/1b/21/1b809d9a2bdf3ecc481322d7c9223c21.jpg',
+      'https://static001.geekbang.org/resource/image/b6/4f/b6d65b2f12646a9fd6b8cb2b020d754f.jpg',
+      'https://static001.geekbang.org/resource/image/73/e4/730ea9c393def7975deceb48b3eb6fe4.jpg',
+    ]
+
+    carousel.render()
+
+    // mount
+    document.querySelector('#container').appendChild(carousel.root)
+  </script>
+</body>
+</html>
