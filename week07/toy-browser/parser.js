@@ -1,4 +1,6 @@
 const css = require('css')
+// const layout = require('./layout1')
+const layout = require('./layout')
 
 const EOF = Symbol('EOF') // EOF: End Of File
 const TAG_NAME_REG = /^[a-zA-Z]$/
@@ -107,8 +109,8 @@ function computeCSS(element) {
           computedStyle[declaration.property].value = declaration.value
           computedStyle[declaration.property].specificity = sp
         }
-
       }
+      // console.log('computedStyle', element.computedStyle)
     }
   }
 
@@ -140,7 +142,7 @@ function emit(token) {
     computeCSS(element)
 
     top.children.push(element)
-    element.parent = top
+    // element.parent = top
 
     if (!token.isSelfClosing) {
       stack.push(element)
@@ -157,7 +159,7 @@ function emit(token) {
       }
       stack.pop()
     }
-
+    layout(top)
     currentTextNode = null
 
   } else if (token.type === 'text') {
