@@ -17,8 +17,7 @@ const template = `
         background-color: rgb(25,255,255);
       }
       .demo2 {
-        display: flex;
-        width: 100px;
+        flex: 1;
         height: 200px;
         background-color: rgb(255,215,255);
       }
