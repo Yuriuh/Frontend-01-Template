@@ -1,4 +1,4 @@
-import { createElement, Text, Wrapper } from "./utils/createElement"
+import { createElement, Text, Wrapper } from './utils/createElement'
 
 class Carousel {
   constructor(config) {
