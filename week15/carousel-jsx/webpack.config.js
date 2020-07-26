@@ -1,4 +1,4 @@
-const path = require('path')
+const path = require('path');
 
 module.exports = {
   entry: './main.js',
@@ -32,4 +32,4 @@ module.exports = {
   optimization: {
     minimize: false,
   }
-}
+};

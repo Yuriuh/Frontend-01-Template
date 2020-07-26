@@ -1,0 +1,88 @@
+<style>
+  #demo1 {
+    width: 100px;
+    height: 100px;
+    background: skyblue;
+  }
+  #demo2 {
+    width: 100px;
+    height: 100px;
+    background-color: lightpink;
+    /* transition: transform 5s linear; */
+  }
+</style>
+
+<div id="demo1"></div>
+<div id="demo2"></div>
+
+<button id="start">start</button>
+<button id="color-start">color start</button>
+<button id="restart">restart</button>
+<button id="pause">pause</button>
+<button id="resume">resume</button>
+
+<script type="module">
+import { Timeline, Animation, ColorAnimation } from './animation.js'
+import { cubicBezier } from './cubicBezier.js'
+
+const el1 = document.querySelector('#demo1')
+const el2 = document.querySelector('#demo2')
+const startButton = document.querySelector('#start')
+const colorStartButton = document.querySelector('#color-start')
+const restartButton = document.querySelector('#restart')
+const pauseButton = document.querySelector('#pause')
+const resumeButton = document.querySelector('#resume')
+
+const linear = t => t
+const ease = cubicBezier(0.25, 0.1, 0.25, 1)
+
+const t1 = new Timeline()
+t1.add(new Animation({
+  object: el1.style,
+  property: 'transform',
+  template: v => `translateX(${v}px)`,
+  start: 0,
+  end: 200,
+  duration: 5000,
+  delay: 0,
+  timingFunction: linear,
+}))
+
+pauseButton.addEventListener('click', () => {
+  console.log('pause')
+  t1.pause()
+})
+resumeButton.addEventListener('click', () => {
+  console.log('resume')
+  t1.resume()
+})
+startButton.addEventListener('click', () => {
+  t1.start()
+  // el2.style.transform = 'translateX(200px)'
+})
+restartButton.addEventListener('click', () => {
+  console.log('restart')
+  t1.restart()
+})
+colorStartButton.addEventListener('click', () => {
+  t1.add(new ColorAnimation({
+    object: el1.style,
+    property: 'backgroundColor',
+    start: { r: 0, g: 0, b: 0, a: 1 },
+    end: { r: 255, g: 0, b: 0, a: 1 },
+    duration: 5000,
+    delay: 0,
+    timingFunction: linear,
+  }))
+  t1.add(new Animation({
+    object: el2.style,
+    property: 'transform',
+    template: v => `translateX(${v}px)`,
+    start: 0,
+    end: 200,
+    duration: 5000,
+    delay: 0,
+    timingFunction: linear,
+  }))
+})
+</script>

@@ -1,0 +1,83 @@
+<style>
+  #el {
+    width: 100px;
+    height: 100px;
+    background-color: skyblue;
+  }
+  #el2 {
+    width: 100px;
+    height: 100px;
+    background-color: lightpink;
+    transition: transform 5s ease;
+  }
+</style>
+
+<div id="el"></div>
+<div id="el2"></div>
+
+<script>
+class Timeline {
+  constructor() {
+    this.animations = []
+  }
+  tick() {
+    const t = Date.now() - this.startTime
+    // console.log('t', t)
+    for (const animation of this.animations) {
+      if (t > animation.duration + animation.delay) {
+        continue
+      }
+
+      const {
+        object,
+        property,
+        template,
+        start,
+        end,
+        duration,
+        delay,
+        timingFunction,
+      } = animation
+
+      const progression = timingFunction((t - delay) / duration) // 0 - 1 之间的数
+      const value = start + progression * (end - start)
+
+      object[property] = template(value)
+    }
+
+    requestAnimationFrame(() => this.tick())
+  }
+  start() {
+    this.startTime = Date.now()
+    this.tick()
+  }
+  add(animation) {
+    this.animations.push(animation)
+  }
+}
+
+class Animation {
+  constructor(object, property, template, start, end, duration, delay, timingFunction) {
+    this.object = object
+    this.template = template
+    this.property = property
+    this.start = start
+    this.end = end
+    this.duration = duration
+    this.delay = delay
+    this.timingFunction = timingFunction
+  }
+}
+
+const el = document.querySelector('#el')
+const el2 = document.querySelector('#el2')
+
+const linear = t => t
+const t1 = new Timeline()
+t1.add(new Animation(el.style, 'transform', v => `translateX(${v}px)`, 0, 200, 5000, 0, linear))
+t1.start()
+
+setTimeout(() => {
+  el2.style.transform = 'translateX(200px)'
+})
+</script>
