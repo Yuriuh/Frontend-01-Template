@@ -1,4 +1,4 @@
-import { enableGesture } from "../gesture"
+import { enableGesture } from "./gesture"
 
 // 函数名为 webpack.config.js pragma 配置的名字
 export function createElement(Cls, attributes, ...children) {

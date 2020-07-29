@@ -1,7 +1,7 @@
 import { createElement, Text, Wrapper } from './utils/createElement'
-import { ease } from './cubicBezier'
-import { Timeline, Animation } from './animation'
-import { enableGesture } from './gesture'
+import { ease } from './utils/cubicBezier'
+import { Timeline, Animation } from './utils/animation'
+import { enableGesture } from './utils/gesture'
 
 export class Carousel {
   constructor(config) {
