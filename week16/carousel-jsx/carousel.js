@@ -37,12 +37,10 @@ export class Carousel {
         timeline.pause()
         clearTimeout(nextPicStopHandler)
         const currentElement = children[currentPosition]
-        // console.log('currentElement', currentElement)
         const currentTransformValue = Number(currentElement.style.transform.match(/translateX\(([\s\S]+)px\)/)[1])
         offset = currentTransformValue + (500 * currentPosition)
       }
       const onPan = event => {
-        // console.log('onPan')
         const lastElement = children[lastPosition]
         const currentElement = children[currentPosition]
         const nextElement = children[nextPosition]
@@ -61,9 +59,9 @@ export class Carousel {
         console.log('panend')
         let direction = 0
         const dx = event.detail.clientX - event.detail.startX
-        if (dx + offset > 250) {
+        if (dx + offset > 250 || (dx > 0 && event.detail.isFlick)) {
           direction = 1
-        } else if (dx + offset < -250) {
+        } else if (dx + offset < -250 || (dx < 0 && event.detail.isFlick)) {
           direction = -1
         }
         timeline.reset()
