@@ -1,32 +1,10 @@
 import assert from 'assert'
 import { parseHTML } from '../src/parser'
 
-// describe('Parse a single element', function () {
-//   let ast1
-//   let div1
-//   beforeEach(function () {
-    // ast1 = parseHTML('<div></div>')
-    // div1 = ast1.children[0]
-//   })
-//   it('the first children is div', function () {
-//     console.log('div1', div1)
-//     assert.equal(div1.tagName, 'div')
-//   })
-//   it('the children length of div should be zero', function () {
-//     assert.equal(div1.children.length, 0)
-//   })
-//   it('the type of div should be element', function () {
-//     assert.equal(div1.type, 'element')
-//   })
-//   it('the attributes length of div should be zero', function () {
-//     assert.equal(div1.attributes.length, 0)
-//   })
-// })
-
-describe.only('Parse html function', () => {
+describe('Parse html function', () => {
   it('Parse a single element', () => {
-    var ast = parseHTML('<div></div>')
-    var div = ast.children[0]
+    var doc = parseHTML('<div></div>')
+    var div = doc.children[0]
     assert.equal(div.tagName, 'div')
     assert.equal(div.children.length, 0)
     assert.equal(div.type, 'element')
@@ -34,8 +12,8 @@ describe.only('Parse html function', () => {
   })
 
   it('Parse a single element with text content', () => {
-    var ast = parseHTML('<div>Hello</div>')
-    var div = ast.children[0]
+    var doc = parseHTML('<div>Hello</div>')
+    var div = doc.children[0]
     var text = div.children[0]
     assert.equal(text.content, 'Hello')
     assert.equal(text.type, 'text')
@@ -43,25 +21,25 @@ describe.only('Parse html function', () => {
 
   it('tag mismatch', () => {
     try {
-      var ast = parseHTML('<div></vid>')
+      var doc = parseHTML('<div></vid>')
     } catch (error) {
       assert.equal(error.message, 'Tag start end doesn\'t match!')
     }
   })
 
   it('text with <', () => {
-    var ast = parseHTML('<div>a < b</div>')
-    var text = ast.children[0].children[0]
+    var doc = parseHTML('<div>a < b</div>')
+    var text = doc.children[0].children[0]
     assert.equal(text.content, 'a < b')
     assert.equal(text.type, 'text')
   })
 
-  it('with property', () => {
-    var ast = parseHTML('<div id=a class=\'b\' data="c"></div>')
-    var div = ast.children[0]
+  it('with property1', () => {
+    var doc = parseHTML(`<div id=a class='b' data="c" ></div>`)
+    var div = doc.children[0]
     var count = 0
 
-    for (const attr of div.attributes) {
+    for (var attr of div.attributes) {
       if (attr.name === 'id') {
         count += 1
         assert.equal(attr.value, 'a')
@@ -72,9 +50,156 @@ describe.only('Parse html function', () => {
       }
       if (attr.name === 'data') {
         count += 1
-        console.log('attr value', attr.value)
         assert.equal(attr.value, 'c')
       }
     }
+    assert.ok(count === 3)
+  })
+
+  it('with property2', () => {
+    var doc = parseHTML(`<div id=a class='b' data="c"></div>`)
+    var div = doc.children[0]
+    var count = 0
+
+    for (var attr of div.attributes) {
+      if (attr.name === 'id') {
+        count += 1
+        assert.equal(attr.value, 'a')
+      }
+      if (attr.name === 'class') {
+        count += 1
+        assert.equal(attr.value, 'b')
+      }
+      if (attr.name === 'data') {
+        count += 1
+        assert.equal(attr.value, 'c')
+      }
+    }
+    assert.ok(count === 3)
+  })
+
+  it('with property3', () => {
+    var doc = parseHTML(`<div id=a class='b'data="c"></div>`)
+    var div = doc.children[0]
+    var count = 0
+
+    for (var attr of div.attributes) {
+      if (attr.name === 'id') {
+        count += 1
+        assert.equal(attr.value, 'a')
+      }
+      if (attr.name === 'class') {
+        count += 1
+        assert.equal(attr.value, 'b')
+      }
+      if (attr.name === 'data') {
+        count += 1
+        assert.equal(attr.value, 'c')
+      }
+    }
+    assert.ok(count === 3)
+  })
+
+  it('script', () => {
+    var content = parseHTML(`
+      <script>
+        <div>abc</div>
+        <span>def</span>
+      /script>
+      <script>
+      <
+      </
+      </scr
+      </scri
+      </scrip
+      </script
+      </script>
+    `)
+    var doc = parseHTML(`<script>${content}</script>`)
+    var text = doc.children[0].children[0]
+    assert.equal(text.content, content)
+    assert.equal(text.type, 'text')
+  })
+
+  it('attribute with no value', () => {
+    var doc = parseHTML(`<div class></div>`)
+    var div = doc.children[0]
+    var count = 0
+
+    for (var attr of div.attributes) {
+      if (attr.name === 'class') {
+        count += 1
+        assert.equal(attr.value, '')
+      }
+    }
+
+    assert.ok(count === 1)
+  })
+
+  it('attribute with no value2', () => {
+    var doc = parseHTML(`<div class id/>`)
+    var div = doc.children[0]
+    var count = 0
+
+    for (var attr of div.attributes) {
+      if (attr.name === 'class') {
+        count += 1
+        assert.equal(attr.value, '')
+      }
+      if (attr.name === 'id') {
+        count += 1
+        assert.equal(attr.value, '')
+      }
+    }
+
+    assert.ok(count === 2)
+  })
+
+  it('self closed single element', () => {
+    var doc = parseHTML('<img/>')
+    var img = doc.children[0]
+
+    assert.equal(img.tagName, 'img')
+    assert.equal(img.type, 'element')
+  })
+
+  it('self closed single element with an end space', () => {
+    var doc = parseHTML('<img />')
+    var img = doc.children[0]
+
+    assert.equal(img.tagName, 'img')
+    assert.equal(img.type, 'element')
+  })
+
+  it('self closed single element with multiple end spaces', () => {
+    var doc = parseHTML('<img   />')
+    var img = doc.children[0]
+
+    assert.equal(img.tagName, 'img')
+    assert.equal(img.type, 'element')
+  })
+
+  it('upercase tagname element', () => {
+    var doc = parseHTML('<DIV></DIV>')
+    var div = doc.children[0]
+
+    assert.equal(div.tagName, 'DIV')
+    assert.equal(div.type, 'element')
+  })
+
+  it('upercase self closing element', () => {
+    var doc = parseHTML('<IMG />')
+    var img = doc.children[0]
+
+    assert.equal(img.tagName, 'IMG')
+    assert.equal(img.type, 'element')
+  })
+
+  it('empty tagname element', () => {
+    var doc = parseHTML('<></>')
+    var text = doc.children[0]
+
+    assert.equal(text.content, '<>')
+    assert.equal(text.type, 'text')
   })
 })

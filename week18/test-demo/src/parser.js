@@ -27,8 +27,9 @@ function emit(token) {
 
     top.children.push(element)
 
-    if (!token.isSelfClosing)
+    if (!token.isSelfClosing) {
       stack.push(element)
+    }
 
     currentTextNode = null
 
@@ -179,7 +180,7 @@ function singleQuotedAttributeValue(c) {
 
   } else {
     currentAttribute.value += c
-    return doubleQuotedAttributeValue
+    return singleQuotedAttributeValue
   }
 }
 
@@ -195,14 +196,15 @@ function afterQuotedAttributeValue(c) {
   } else if (c === EOF) {
 
   } else {
-    currentAttribute.value += c
-    return doubleQuotedAttributeValue
+    // currentAttribute.value += c
+    // return doubleQuotedAttributeValue
+    currentAttribute = { name: "", value: "" }
+    return attributeName(c)
   }
 }
 
 
 function UnquotedAttributeValue(c) {
-
   if (c.match(/^[\t\n\f ]$/)) {
     currentToken[currentAttribute.name] = currentAttribute.value
     return beforeAttributeName
@@ -237,6 +239,7 @@ function selfClosingStartTag(c) {
   }
 }
 
+// 有 bug
 function endTagOpen(c) {
   if (c.match(/^[a-zA-Z]$/)) {
     currentToken = {
@@ -245,14 +248,21 @@ function endTagOpen(c) {
     }
     return tagName(c)
   } else if (c === ">") {
-
+    // 处理空标签
+    currentToken = {
+      tyep: 'startTag',
+      tagName: '',
+      // isSelfClosing: true
+    }
+    emit(currentToken)
+    return data
   } else if (c === EOF) {
 
   } else {
 
   }
 }
-//in script
+// in script
 function scriptData(c) {
   if (c === "<") {
     return scriptDataLessThanSign
@@ -264,7 +274,7 @@ function scriptData(c) {
     return scriptData
   }
 }
-//in script received <
+// in script received <
 function scriptDataLessThanSign(c) {
   if (c === "/") {
     return scriptDataEndTagOpen
@@ -273,14 +283,10 @@ function scriptDataLessThanSign(c) {
       type: "text",
       content: "<"
     })
-    emit({
-      type: "text",
-      content: c
-    })
-    return scriptData
+    return scriptData(c)
   }
 }
-//in script received </
+// in script received </
 function scriptDataEndTagOpen(c) {
   if (c === "s") {
     return scriptDataEndTagNameS
@@ -295,14 +301,10 @@ function scriptDataEndTagOpen(c) {
       content: "/"
     })
 
-    emit({
-      type: "text",
-      content: "c"
-    })
-    return scriptData
+    return scriptData(c)
   }
 }
-//in script received </s
+// in script received </s
 function scriptDataEndTagNameS(c) {
   if (c === "c") {
     return scriptDataEndTagNameC
@@ -311,15 +313,11 @@ function scriptDataEndTagNameS(c) {
       type: "text",
       content: "</s"
     })
-    emit({
-      type: "text",
-      content: c
-    })
-    return scriptData
+    return scriptData(c)
   }
 }
 
-//in script received </sc
+// in script received </sc
 function scriptDataEndTagNameC(c) {
   if (c === "r") {
     return scriptDataEndTagNameR
@@ -328,11 +326,7 @@ function scriptDataEndTagNameC(c) {
       type: "text",
       content: "</sc"
     })
-    emit({
-      type: "text",
-      content: c
-    })
-    return scriptData
+    return scriptData(c)
   }
 }
 
@@ -345,11 +339,7 @@ function scriptDataEndTagNameR(c) {
       type: "text",
       content: "</scr"
     })
-    emit({
-      type: "text",
-      content: c
-    })
-    return scriptData
+    return scriptData(c)
   }
 }
 //in script received </scri
@@ -361,11 +351,7 @@ function scriptDataEndTagNameI(c) {
       type: "text",
       content: "</scri"
     })
-    emit({
-      type: "text",
-      content: c
-    })
-    return scriptData
+    return scriptData(c)
   }
 }
 //in script received </scrip
@@ -377,16 +363,14 @@ function scriptDataEndTagNameP(c) {
       type: "text",
       content: "</scrip"
     })
-    emit({
-      type: "text",
-      content: c
-    })
-    return scriptData
+    return scriptData(c)
   }
 }
 //in script received </script
+let spaces = 0
 function scriptDataEndTag(c) {
   if (c === " ") {
+    spaces += 1
     return scriptDataEndTag
   } if (c === ">") {
     emit({
@@ -397,13 +381,9 @@ function scriptDataEndTag(c) {
   } else {
     emit({
       type: "text",
-      content: "</script"
+      content: "</script" + new Array(spaces).fill(' ').join('')
     })
-    emit({
-      type: "text",
-      content: c
-    })
-    return scriptData
+    return scriptData(c)
   }
 }
 
@@ -411,6 +391,13 @@ function afterAttributeName(c) {
   if (c.match(/^[\t\n\f ]$/)) {
     return afterAttributeName
   } else if (c === "/") {
+    if (currentAttribute && currentAttribute.name) {
+      currentToken[currentAttribute.name] = currentAttribute.value
+      currentAttribute = {
+        name: '',
+        value: '',
+      }
+    }
     return selfClosingStartTag
   } else if (c === "=") {
     return beforeAttributeValue
@@ -440,5 +427,8 @@ export function parseHTML(html) {
     }
   }
   state = state(EOF)
+  currentToken = null
+  currentAttribute = null
+  currentToken = null
   return stack[0]
 }
