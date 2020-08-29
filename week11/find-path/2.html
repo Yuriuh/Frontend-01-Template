@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Path</title>
+  <style>
+    .cell {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: gray;
+      border-bottom: 1px solid white;
+      border-right: 1px solid white;
+      vertical-align: middle;
+    }
+
+    #container {
+      width: 701px;
+      font-size: 0px;
+      line-height: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <button id="saveButton">save</button>
+</body>
+
+</html>
+
+<script>
+  const container = document.querySelector('#container')
+  const saveButton = document.querySelector('#saveButton')
+
+  let map = localStorage.map
+    ? JSON.parse(localStorage.map)
+    : new Array(10000).fill(0)
+
+  let mouse = false
+  let clear = false
+
+  document.addEventListener('mousedown', e => {
+    mouse = true
+    clear = (e.which === 3)
+  })
+  document.addEventListener('mouseup', () => mouse = false)
+  document.addEventListener('contextmenu', e => e.preventDefault())
+
+  function drawBoard() {
+    for (let y = 0; y < 100; y++) {
+      for (let x = 0; x < 100; x++) {
+        const cell = document.createElement('div')
+        cell.classList.add('cell')
+
+        if (map[y * 100 + x] === 1) {
+          cell.style.backgroundColor = 'black'
+        }
+
+        cell.addEventListener('mousemove', () => {
+          if (mouse) {
+            if (clear) {
+              cell.style.backgroundColor = ''
+              map[y * 100 + x] = 0
+            } else {
+              cell.style.backgroundColor = 'black'
+              map[y * 100 + x] = 1
+            }
+          }
+        })
+        container.appendChild(cell)
+      }
+    }
+  }
+  drawBoard()
+
+  saveButton.addEventListener('click', saveBoard)
+
+  function saveBoard() {
+    localStorage.map = JSON.stringify(map)
+  }
+
+  function findPath(map, start, end) {
+    map = map.slice()
+
+    let queue = [start]
+    function insert(x, y) {
+      if (x < 0 || x >= 100 || y < 0 || y >= 100) {
+        return
+      }
+      if (map[y * 100 + x]) {
+        return
+      }
+      map[y * 100 + x] = 2
+      queue.push([x, y])
+    }
+    while (queue.length) {
+      let [x, y] = queue.shift()
+      console.log('x', x)
+      console.log('y', y)
+      if (x === end[0] && y === end[1]) {
+        return true
+      }
+      insert(x - 1, y)
+      insert(x, y - 1)
+      insert(x + 1, y)
+      insert(x, y + 1)
+    }
+    return false
+  }
+
+  // findPath(map, [0, 0], [50, 50])
+</script>
