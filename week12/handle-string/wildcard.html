@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <script>
+      function find(source, pattern) {
+        let starCount = 0;
+
+        // 对星进行计数
+        for (let i = 0; i < pattern.length; i++) {
+          if (pattern[i] === '*') {
+            starCount++;
+          }
+        }
+
+        // 无星的匹配
+        if (starCount === 0) {
+          for (let i = 0; i < pattern.length; i++) {
+            if (pattern[i] !== source[i] && pattern[i] !== '?') {
+              return false;
+            }
+          }
+          return;
+        }
+
+        let i = 0;
+        let lastIndex = 0;
+
+        // 先去除i之前的字符，当前i的结果为第一颗*的位置
+        for (i = 0; pattern[i] !== '*'; i++) {
+          if (pattern[i] !== source[i] && pattern[i] !== '?') {
+            return false;
+          }
+        }
+
+        lastIndex = i;
+
+        // 处理每一段的*，
+        for (let p = 0; p < starCount - 1; p++) {
+          i++;
+          let subPattern = '';
+
+          // 查找到*之间的子串
+          while (pattern[i] !== '*') {
+            subPattern += pattern[i];
+            i++;
+          }
+
+          // 将?转换成正则的\s\S，调用正则进行匹配
+          let reg = new RegExp(subPattern.replace(/\?/g, '[\\s\\S]'), 'g');
+          reg.lastIndex = lastIndex;
+          console.log(reg.exec(source));
+          lastIndex = reg.lastIndex;
+        }
+
+        // 处理最后一段*，查找最后一个*之前的子串
+        for (
+          let j = 0;
+          j <= source.length - lastIndex && pattern[pattern.length - 1] !== '*';
+          j++
+        ) {
+          if (
+            pattern[pattern.length - j] !== source[source.length - j] &&
+            pattern[pattern.length - j] !== '?'
+          ) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      console.log(find('abcabcabx', 'a*b*bx*c'));
+    </script>
+  </body>
+</html>

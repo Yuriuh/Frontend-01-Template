@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    function find(source, pattern) {
+      let j = 0
+
+      for (let i = 0; i < source.length; i++) {
+        if (source[i] === pattern[j]) {
+          j++
+        } else {
+          j = 0
+        }
+
+        if (j === pattern.length) {
+          return true
+        }
+      }
+
+      return false
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title></title>
+  <style>
+    #container {
+      background: #000;
+    }
+
+    .keywords {
+      color: blue;
+    }
+
+    .whitespace {
+      color: red;
+    }
+
+    .identifier {
+      color: green;
+    }
+
+    .punctuator {
+      color: yellow;
+    }
+  </style>
+</head>
+
+<body>
+  <pre id="container"></pre>
+  <script>
+    var regexp = /([0-9\.]+)|([ ]+)|([\r\n]+)|(\+)|(\-)|(\*)|(\\)/g;
+    const dictionary = [
+      'Number',
+      'Whitespace',
+      'LineTerminator',
+      '+',
+      '-',
+      '*',
+      '/',
+    ];
+
+    function tokenNize(source) {
+      let result = null;
+      let lastIndex = 0;
+
+      do {
+        lastIndex = regexp.lastIndex;
+        result = regexp.exec(source);
+        if (!result) {
+          break;
+        }
+
+        for (let i = 0; i < dictionary.length; i++) {
+          if (result[i + 1]) {
+            console.log(dictionary[i]);
+          }
+        }
+        console.log(result[0]);
+      } while (result);
+    }
+
+    tokenNize('1024 + 10 * 25');
+  </script>
+</body>
+
+</html>
